@@ -2,13 +2,13 @@
 
 namespace Benedya\Connect\Provider;
 
-class VkProvider implements ProviderInterface
+class FbProvider implements ProviderInterface
 {
     protected $clientSecret;
     protected $requestParameters;
-    protected $authorizeUrl = 'https://oauth.vk.com/authorize';
-    protected $accessTokenUrl = 'https://oauth.vk.com/access_token';
-    protected $userDataUrl = 'https://api.vk.com/method/users.get';
+    protected $authorizeUrl = 'https://www.facebook.com/v2.8/dialog/oauth';
+    protected $accessTokenUrl = 'https://graph.facebook.com/v2.8/oauth/access_token';
+    protected $userDataUrl = 'https://graph.facebook.com/v2.8/me';
     protected $requiredParameters = ['client_id', 'redirect_uri'];
     protected $accessTokenData;
 
@@ -21,11 +21,13 @@ class VkProvider implements ProviderInterface
         $this->clientSecret = $clientSecret;
     }
 
+    /**
+     * @return string
+     */
     public function getUrl()
     {
         return $this->authorizeUrl .'?'. http_build_query($this->requestParameters);
     }
-
 
     /**
      * @return mixed
@@ -62,36 +64,32 @@ class VkProvider implements ProviderInterface
     {
         $accessToken = $this->getAccessToken();
         $requestParameters = [
-            'user_ids' => $this->accessTokenData['user_id'],
             'access_token' => $accessToken,
         ];
         if($fields) {
             $requestParameters['fields'] = join(',', $fields);
         }
-        $data = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
-        $data = json_decode($data, true);
-        if(!isset($data['response'])) {
-            throw new \Exception('Response is empty ' . print_r($data, true));
+        $response = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
+        $data = json_decode($response, true);
+        if(!is_array($data)) {
+            throw new \Exception('Oops.. Response is wrong: ' . print_r($response, true));
         }
-        return array_merge(array_pop($data['response']), [
-            'user_id' => $this->accessTokenData['user_id'],
-            'email' => $this->accessTokenData['email'],
-        ]);
+        return $data;
     }
 
     /**
-     * @param string $userDataUrl
-     * @return VkProvider
+     * @param string $authorizeUrl
+     * @return FbProvider
      */
-    public function setUserDataUrl($userDataUrl)
+    public function setAuthorizeUrl($authorizeUrl)
     {
-        $this->userDataUrl = $userDataUrl;
+        $this->authorizeUrl = $authorizeUrl;
         return $this;
     }
 
     /**
      * @param string $accessTokenUrl
-     * @return VkProvider
+     * @return FbProvider
      */
     public function setAccessTokenUrl($accessTokenUrl)
     {
@@ -100,12 +98,12 @@ class VkProvider implements ProviderInterface
     }
 
     /**
-     * @param string $authorizeUrl
-     * @return VkProvider
+     * @param string $userDataUrl
+     * @return FbProvider
      */
-    public function setAuthorizeUrl($authorizeUrl)
+    public function setUserDataUrl($userDataUrl)
     {
-        $this->authorizeUrl = $authorizeUrl;
+        $this->userDataUrl = $userDataUrl;
         return $this;
     }
 }

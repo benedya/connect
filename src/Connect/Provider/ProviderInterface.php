@@ -4,7 +4,8 @@ namespace Benedya\Connect\Provider;
 
 interface ProviderInterface
 {
-    function getData();
+//    function getData();
+    function getAccessToken();
     function getUrl();
-    function handleCode();
+//    function handleCode();
 }

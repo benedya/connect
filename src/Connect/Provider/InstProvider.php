@@ -2,13 +2,17 @@
 
 namespace Benedya\Connect\Provider;
 
-class VkProvider implements ProviderInterface
+use Benedya\Connect\Traits\CurlToolsTrait;
+
+class InstProvider implements ProviderInterface
 {
+    use CurlToolsTrait;
+
     protected $clientSecret;
     protected $requestParameters;
-    protected $authorizeUrl = 'https://oauth.vk.com/authorize';
-    protected $accessTokenUrl = 'https://oauth.vk.com/access_token';
-    protected $userDataUrl = 'https://api.vk.com/method/users.get';
+    protected $authorizeUrl = 'https://api.instagram.com/oauth/authorize/';
+    protected $accessTokenUrl = 'https://api.instagram.com/oauth/access_token';
+    protected $userDataUrl = 'https://api.instagram.com/v1/users/self/';
     protected $requiredParameters = ['client_id', 'redirect_uri'];
     protected $accessTokenData;
 
@@ -21,11 +25,13 @@ class VkProvider implements ProviderInterface
         $this->clientSecret = $clientSecret;
     }
 
+    /**
+     * @return string
+     */
     public function getUrl()
     {
         return $this->authorizeUrl .'?'. http_build_query($this->requestParameters);
     }
-
 
     /**
      * @return mixed
@@ -40,12 +46,13 @@ class VkProvider implements ProviderInterface
         if(!$code) {
             throw new \Exception('Code not found.');
         }
-        $data = file_get_contents($this->accessTokenUrl . '?' . http_build_query([
+        $data = $this->post($this->accessTokenUrl, [
                 'client_id' => $this->requestParameters['client_id'],
                 'client_secret' => $this->clientSecret,
                 'redirect_uri' => $this->requestParameters['redirect_uri'],
                 'code' => $code,
-            ]));
+                'grant_type' => 'authorization_code',
+            ]);
         $this->accessTokenData = json_decode($data, true);
         if(!isset($this->accessTokenData['access_token'])) {
             throw new \Exception('Oops.. Can not get access token, response ' . print_r($this->accessTokenData, true));
@@ -62,26 +69,29 @@ class VkProvider implements ProviderInterface
     {
         $accessToken = $this->getAccessToken();
         $requestParameters = [
-            'user_ids' => $this->accessTokenData['user_id'],
             'access_token' => $accessToken,
         ];
-        if($fields) {
-            $requestParameters['fields'] = join(',', $fields);
+        $response = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
+        $data = json_decode($response, true);
+        if(!is_array($data)) {
+            throw new \Exception('Oops.. Response is wrong: ' . print_r($response, true));
         }
-        $data = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
-        $data = json_decode($data, true);
-        if(!isset($data['response'])) {
-            throw new \Exception('Response is empty ' . print_r($data, true));
-        }
-        return array_merge(array_pop($data['response']), [
-            'user_id' => $this->accessTokenData['user_id'],
-            'email' => $this->accessTokenData['email'],
-        ]);
+        return $data['data'];
+    }
+
+    /**
+     * @param string $authorizeUrl
+     * @return InstProvider
+     */
+    public function setAuthorizeUrl($authorizeUrl)
+    {
+        $this->authorizeUrl = $authorizeUrl;
+        return $this;
     }
 
     /**
      * @param string $userDataUrl
-     * @return VkProvider
+     * @return InstProvider
      */
     public function setUserDataUrl($userDataUrl)
     {
@@ -91,21 +101,11 @@ class VkProvider implements ProviderInterface
 
     /**
      * @param string $accessTokenUrl
-     * @return VkProvider
+     * @return InstProvider
      */
     public function setAccessTokenUrl($accessTokenUrl)
     {
         $this->accessTokenUrl = $accessTokenUrl;
-        return $this;
-    }
-
-    /**
-     * @param string $authorizeUrl
-     * @return VkProvider
-     */
-    public function setAuthorizeUrl($authorizeUrl)
-    {
-        $this->authorizeUrl = $authorizeUrl;
         return $this;
     }
 }
