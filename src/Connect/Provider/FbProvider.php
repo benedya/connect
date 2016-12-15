@@ -6,6 +6,7 @@ class FbProvider implements ProviderInterface
 {
     protected $clientSecret;
     protected $requestParameters;
+    protected $apiUrl = 'https://graph.facebook.com/v2.8/';
     protected $authorizeUrl = 'https://www.facebook.com/v2.8/dialog/oauth';
     protected $accessTokenUrl = 'https://graph.facebook.com/v2.8/oauth/access_token';
     protected $userDataUrl = 'https://graph.facebook.com/v2.8/me';
@@ -105,5 +106,28 @@ class FbProvider implements ProviderInterface
     {
         $this->userDataUrl = $userDataUrl;
         return $this;
+    }
+
+    /**
+     * @param $endpoint
+     * @param $options
+     * @param bool|false $useAccessToken
+     * @return mixed|string
+     * @throws \Exception
+     */
+    public function get($endpoint, $options, $useAccessToken = false)
+    {
+        if($useAccessToken) {
+            $accessToken = $this->getAccessToken();
+            $options = array_merge([
+                'access_token' => $accessToken,
+            ], $options);
+        }
+        $data = file_get_contents($this->apiUrl. $endpoint . '?' . http_build_query($options));
+        $data = json_decode($data, true);
+        if(!is_array($data['data'])) {
+            throw new \Exception('Response is empty ' . print_r($data, true));
+        }
+        return $data['data'];
     }
 }

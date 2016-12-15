@@ -6,6 +6,7 @@ class VkProvider implements ProviderInterface
 {
     protected $clientSecret;
     protected $requestParameters;
+    protected $apiUrl = 'https://api.vk.com/method/';
     protected $authorizeUrl = 'https://oauth.vk.com/authorize';
     protected $accessTokenUrl = 'https://oauth.vk.com/access_token';
     protected $userDataUrl = 'https://api.vk.com/method/users.get';
@@ -104,5 +105,28 @@ class VkProvider implements ProviderInterface
     {
         $this->authorizeUrl = $authorizeUrl;
         return $this;
+    }
+
+    /**
+     * @param $endpoint
+     * @param $options
+     * @param bool|false $useAccessToken
+     * @return mixed|string
+     * @throws \Exception
+     */
+    public function get($endpoint, $options, $useAccessToken = false)
+    {
+        if($useAccessToken) {
+            $accessToken = $this->getAccessToken();
+            $options = array_merge([
+                'access_token' => $accessToken,
+            ], $options);
+        }
+        $data = file_get_contents($this->apiUrl. $endpoint . '?' . http_build_query($options));
+        $data = json_decode($data, true);
+        if(!isset($data['response'])) {
+            throw new \Exception('Response is empty ' . print_r($data, true));
+        }
+        return $data['response'];
     }
 }
