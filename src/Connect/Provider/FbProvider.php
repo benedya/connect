@@ -63,9 +63,9 @@ class FbProvider implements ProviderInterface
     public function getUserData(array $fields = [])
     {
         $accessToken = $this->getAccessToken();
-        $requestParameters = [
+        $requestParameters = array_merge([
             'access_token' => $accessToken,
-        ];
+        ], $fields);
         if($fields) {
             $requestParameters['fields'] = join(',', $fields);
         }

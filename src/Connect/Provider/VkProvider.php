@@ -61,13 +61,10 @@ class VkProvider implements ProviderInterface
     public function getUserData(array $fields = [])
     {
         $accessToken = $this->getAccessToken();
-        $requestParameters = [
+        $requestParameters = array_merge([
             'user_ids' => $this->accessTokenData['user_id'],
             'access_token' => $accessToken,
-        ];
-        if($fields) {
-            $requestParameters['fields'] = join(',', $fields);
-        }
+        ], $fields);
         $data = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
         $data = json_decode($data, true);
         if(!isset($data['response'])) {

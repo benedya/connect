@@ -68,9 +68,9 @@ class InstProvider implements ProviderInterface
     public function getUserData(array $fields = [])
     {
         $accessToken = $this->getAccessToken();
-        $requestParameters = [
+        $requestParameters = array_merge([
             'access_token' => $accessToken,
-        ];
+        ], $fields);
         $response = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
         $data = json_decode($response, true);
         if(!is_array($data)) {
