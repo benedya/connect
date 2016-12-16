@@ -67,9 +67,6 @@ class FbProvider implements ProviderInterface
         $requestParameters = array_merge([
             'access_token' => $accessToken,
         ], $fields);
-        if($fields) {
-            $requestParameters['fields'] = join(',', $fields);
-        }
         $response = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
         $data = json_decode($response, true);
         if(!is_array($data)) {
