@@ -108,4 +108,9 @@ class InstProvider implements ProviderInterface
         $this->accessTokenUrl = $accessTokenUrl;
         return $this;
     }
+
+    public function get($endpoint, $options, $useAccessToken = false)
+    {
+        // todo implement this
+    }
 }

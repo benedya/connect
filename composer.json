@@ -1,10 +1,7 @@
 {
   "name": "benedya/connect",
   "description": "Connect library",
-  "keywords": [
-    "php",
-    "telegram"
-  ],
+  "keywords": ["oauth", "authentication", "authorization", "security", "social"],
   "authors": [
     {
       "name": "Bohdan Turyk",
@@ -15,7 +12,14 @@
   "require": {
     "php": ">=5.6.0"
   },
+  "require-dev": {
+    "phpunit/phpunit" : "~5.7.5",
+    "squizlabs/php_codesniffer": "2.*"
+  },
   "autoload": {
     "psr-4": {"Benedya\\Connect\\": "src/Connect"}
+  },
+  "autoload-dev": {
+    "psr-4": {"Benedya\\Connect\\Tests\\": "tests"}
   }
 }
