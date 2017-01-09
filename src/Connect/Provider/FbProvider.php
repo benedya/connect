@@ -31,15 +31,18 @@ class FbProvider implements ProviderInterface
     }
 
     /**
+     * @param bool|false $code
      * @return mixed
      * @throws \Exception
      */
-    public function getAccessToken()
+    public function getAccessToken($code = false)
     {
         if(isset($this->accessTokenData['access_token'])) {
             return $this->accessTokenData['access_token'];
         }
-        $code = isset($_GET['code']) ? $_GET['code'] : null;
+        if(!$code) {
+            $code = isset($_GET['code']) ? $_GET['code'] : null;
+        }
         if(!$code) {
             throw new \Exception('Code not found.');
         }

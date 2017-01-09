@@ -9,7 +9,7 @@ class VkProvider implements ProviderInterface
     protected $apiUrl = 'https://api.vk.com/method/';
     protected $authorizeUrl = 'https://oauth.vk.com/authorize';
     protected $accessTokenUrl = 'https://oauth.vk.com/access_token';
-    protected $userDataUrl = 'https://api.vk.com/method/users.get';
+    protected $userDataEndpoint = 'users.get';
     protected $requiredParameters = ['client_id', 'redirect_uri'];
     protected $accessTokenData;
 
@@ -22,34 +22,39 @@ class VkProvider implements ProviderInterface
         $this->clientSecret = $clientSecret;
     }
 
+    /**
+     * @return string
+     */
     public function getUrl()
     {
         return $this->authorizeUrl .'?'. http_build_query($this->requestParameters);
     }
 
-
     /**
+     * @param bool|false $code
      * @return mixed
      * @throws \Exception
      */
-    public function getAccessToken()
+    public function getAccessToken($code = false)
     {
         if(isset($this->accessTokenData['access_token'])) {
             return $this->accessTokenData['access_token'];
         }
-        $code = isset($_GET['code']) ? $_GET['code'] : null;
+        if(!$code) {
+            $code = isset($_GET['code']) ? $_GET['code'] : null;
+        }
         if(!$code) {
             throw new \Exception('Code not found.');
         }
-        $data = file_get_contents($this->accessTokenUrl . '?' . http_build_query([
+        $result = file_get_contents($this->accessTokenUrl . $this->buildQuery([
                 'client_id' => $this->requestParameters['client_id'],
                 'client_secret' => $this->clientSecret,
                 'redirect_uri' => $this->requestParameters['redirect_uri'],
                 'code' => $code,
             ]));
-        $this->accessTokenData = json_decode($data, true);
+        $this->accessTokenData = json_decode($result, true);
         if(!isset($this->accessTokenData['access_token'])) {
-            throw new \Exception('Oops.. Can not get access token, response ' . print_r($this->accessTokenData, true));
+            throw new \Exception('Oops.. Can not get access token. (Response: ' . $result . ')');
         }
         return $this->accessTokenData['access_token'];
     }
@@ -61,30 +66,44 @@ class VkProvider implements ProviderInterface
      */
     public function getUserData(array $fields = [])
     {
-        $accessToken = $this->getAccessToken();
-        $requestParameters = array_merge([
+        $result = $this->get($this->userDataEndpoint,  array_merge([
             'user_ids' => $this->accessTokenData['user_id'],
-            'access_token' => $accessToken,
-        ], $fields);
-        $data = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
-        $data = json_decode($data, true);
-        if(!isset($data['response'])) {
-            throw new \Exception('Response is empty ' . print_r($data, true));
-        }
-        return array_merge(array_pop($data['response']), [
-            'user_id' => $this->accessTokenData['user_id'],
+        ], $fields), true);
+        return array_merge(array_pop($result), [
             'email' => $this->accessTokenData['email'],
         ]);
     }
 
     /**
-     * @param string $userDataUrl
-     * @return VkProvider
+     * @param $endpoint
+     * @param $options
+     * @param bool|false $useAccessToken
+     * @return mixed|string
+     * @throws \Exception
      */
-    public function setUserDataUrl($userDataUrl)
+    public function get($endpoint, $options, $useAccessToken = false)
     {
-        $this->userDataUrl = $userDataUrl;
-        return $this;
+        if($useAccessToken) {
+            $accessToken = $this->getAccessToken();
+            $options = array_merge([
+                'access_token' => $accessToken,
+            ], $options);
+        }
+        $result = file_get_contents($this->apiUrl. $endpoint . $this->buildQuery($options));
+        $data = json_decode($result, true);
+        if(!isset($data['response'])) {
+            throw new \Exception('Response is empty. (Response: ' . $result . ')');
+        }
+        return $data['response'];
+    }
+
+    /**
+     * @param array $options
+     * @return string
+     */
+    public function buildQuery(array $options)
+    {
+        return '?' . http_build_query($options);
     }
 
     /**
@@ -108,25 +127,22 @@ class VkProvider implements ProviderInterface
     }
 
     /**
-     * @param $endpoint
-     * @param $options
-     * @param bool|false $useAccessToken
-     * @return mixed|string
-     * @throws \Exception
+     * @param string $apiUrl
+     * @return VkProvider
      */
-    public function get($endpoint, $options, $useAccessToken = false)
+    public function setApiUrl($apiUrl)
     {
-        if($useAccessToken) {
-            $accessToken = $this->getAccessToken();
-            $options = array_merge([
-                'access_token' => $accessToken,
-            ], $options);
-        }
-        $data = file_get_contents($this->apiUrl. $endpoint . '?' . http_build_query($options));
-        $data = json_decode($data, true);
-        if(!isset($data['response'])) {
-            throw new \Exception('Response is empty ' . print_r($data, true));
-        }
-        return $data['response'];
+        $this->apiUrl = $apiUrl;
+        return $this;
+    }
+
+    /**
+     * @param string $userDataEndpoint
+     * @return VkProvider
+     */
+    public function setUserDataEndpoint($userDataEndpoint)
+    {
+        $this->userDataEndpoint = $userDataEndpoint;
+        return $this;
     }
 }
