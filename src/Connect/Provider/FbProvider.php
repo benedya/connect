@@ -9,7 +9,7 @@ class FbProvider implements ProviderInterface
     protected $apiUrl = 'https://graph.facebook.com/v2.8/';
     protected $authorizeUrl = 'https://www.facebook.com/v2.8/dialog/oauth';
     protected $accessTokenUrl = 'https://graph.facebook.com/v2.8/oauth/access_token';
-    protected $userDataUrl = 'https://graph.facebook.com/v2.8/me';
+    protected $userDataEndpoint = 'me';
     protected $requiredParameters = ['client_id', 'redirect_uri'];
     protected $accessTokenData;
 
@@ -27,7 +27,7 @@ class FbProvider implements ProviderInterface
      */
     public function getUrl()
     {
-        return $this->authorizeUrl .'?'. http_build_query($this->requestParameters);
+        return $this->authorizeUrl . $this->buildQuery($this->requestParameters);
     }
 
     /**
@@ -46,15 +46,15 @@ class FbProvider implements ProviderInterface
         if(!$code) {
             throw new \Exception('Code not found.');
         }
-        $data = file_get_contents($this->accessTokenUrl . '?' . http_build_query([
+        $result = file_get_contents($this->accessTokenUrl . $this->buildQuery([
                 'client_id' => $this->requestParameters['client_id'],
                 'client_secret' => $this->clientSecret,
                 'redirect_uri' => $this->requestParameters['redirect_uri'],
                 'code' => $code,
             ]));
-        $this->accessTokenData = json_decode($data, true);
+        $this->accessTokenData = json_decode($result, true);
         if(!isset($this->accessTokenData['access_token'])) {
-            throw new \Exception('Oops.. Can not get access token, response ' . print_r($this->accessTokenData, true));
+            throw new \Exception('Oops.. Can not get access token. (Response: ' . $result . ')');
         }
         return $this->accessTokenData['access_token'];
     }
@@ -66,16 +66,39 @@ class FbProvider implements ProviderInterface
      */
     public function getUserData(array $fields = [])
     {
-        $accessToken = $this->getAccessToken();
-        $requestParameters = array_merge([
-            'access_token' => $accessToken,
-        ], $fields);
-        $response = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
-        $data = json_decode($response, true);
+        return $this->get($this->userDataEndpoint, $fields, true);
+    }
+
+    /**
+     * @param $endpoint
+     * @param $options
+     * @param bool|false $useAccessToken
+     * @return mixed|string
+     * @throws \Exception
+     */
+    public function get($endpoint, $options, $useAccessToken = false)
+    {
+        if($useAccessToken) {
+            $accessToken = $this->getAccessToken();
+            $options = array_merge([
+                'access_token' => $accessToken,
+            ], $options);
+        }
+        $result = file_get_contents($this->apiUrl . $endpoint . $this->buildQuery($options));
+        $data = json_decode($result, true);
         if(!is_array($data)) {
-            throw new \Exception('Oops.. Response is wrong: ' . print_r($response, true));
+            throw new \Exception('Response is empty. (Response: ' . $result . ')');
         }
         return $data;
+    }
+
+    /**
+     * @param array $options
+     * @return string
+     */
+    public function buildQuery(array $options)
+    {
+        return '?' . http_build_query($options);
     }
 
     /**
@@ -99,35 +122,22 @@ class FbProvider implements ProviderInterface
     }
 
     /**
-     * @param string $userDataUrl
+     * @param string $apiUrl
      * @return FbProvider
      */
-    public function setUserDataUrl($userDataUrl)
+    public function setApiUrl($apiUrl)
     {
-        $this->userDataUrl = $userDataUrl;
+        $this->apiUrl = $apiUrl;
         return $this;
     }
 
     /**
-     * @param $endpoint
-     * @param $options
-     * @param bool|false $useAccessToken
-     * @return mixed|string
-     * @throws \Exception
+     * @param string $userDataEndpoint
+     * @return FbProvider
      */
-    public function get($endpoint, $options, $useAccessToken = false)
+    public function setUserDataEndpoint($userDataEndpoint)
     {
-        if($useAccessToken) {
-            $accessToken = $this->getAccessToken();
-            $options = array_merge([
-                'access_token' => $accessToken,
-            ], $options);
-        }
-        $data = file_get_contents($this->apiUrl. $endpoint . '?' . http_build_query($options));
-        $data = json_decode($data, true);
-        if(!is_array($data['data'])) {
-            throw new \Exception('Response is empty ' . print_r($data, true));
-        }
-        return $data['data'];
+        $this->userDataEndpoint = $userDataEndpoint;
+        return $this;
     }
 }

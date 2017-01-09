@@ -27,7 +27,7 @@ class VkProvider implements ProviderInterface
      */
     public function getUrl()
     {
-        return $this->authorizeUrl .'?'. http_build_query($this->requestParameters);
+        return $this->authorizeUrl . $this->buildQuery($this->requestParameters);
     }
 
     /**

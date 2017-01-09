@@ -52,7 +52,10 @@ class VkProviderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             'https://oauth.vk.com/authorize?client_id=client_id&redirect_uri=redirect_uri',
-            self::$provider->getUrl()
+            (new VkProvider('secret', [
+                'client_id' => 'client_id',
+                'redirect_uri' => 'redirect_uri',
+            ]))->getUrl()
         );
     }
 
