@@ -36,6 +36,61 @@ class FbProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('id', self::$provider->get('user_data.endpoint.json', []));
     }
 
+    public function testGetUrl()
+    {
+        $this->assertEquals(
+            'https://www.facebook.com/v2.8/dialog/oauth?client_id=client_id&redirect_uri=redirect_uri',
+            (new FbProvider('secret', [
+                'client_id' => 'client_id',
+                'redirect_uri' => 'redirect_uri',
+            ]))->getUrl()
+        );
+    }
+
+    public function testBuildQuery()
+    {
+        $this->assertEquals(
+            '?q=test',
+            (new FbProvider('secret', [
+                'client_id' => 'client_id',
+                'redirect_uri' => 'redirect_uri',
+            ]))
+                ->buildQuery(['q' => 'test'])
+        );
+    }
+
+    /**
+     * @dataProvider mockedProvider
+     */
+    public function testSetAccessTokenUrl(FbProvider $provider)
+    {
+        $this->assertInstanceOf(FbProvider::class, $provider->setAccessTokenUrl(''));
+    }
+
+    /**
+     * @dataProvider mockedProvider
+     */
+    public function testSetAuthorizeUrl(FbProvider $provider)
+    {
+        $this->assertInstanceOf(FbProvider::class, $provider->setAuthorizeUrl(''));
+    }
+
+    /**
+     * @dataProvider mockedProvider
+     */
+    public function testSetApiUrl(FbProvider $provider)
+    {
+        $this->assertInstanceOf(FbProvider::class, $provider->setApiUrl(''));
+    }
+
+    /**
+     * @dataProvider mockedProvider
+     */
+    public function testSetUserDataEndpoint(FbProvider $provider)
+    {
+        $this->assertInstanceOf(FbProvider::class, $provider->setUserDataEndpoint(''));
+    }
+
     public function mockedProvider()
     {
         $provider = $this->getMockBuilder(FbProvider::class)
