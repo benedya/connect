@@ -10,9 +10,10 @@ class InstProvider implements ProviderInterface
 
     protected $clientSecret;
     protected $requestParameters;
+    protected $apiUrl = 'https://api.instagram.com/v1/';
     protected $authorizeUrl = 'https://api.instagram.com/oauth/authorize/';
     protected $accessTokenUrl = 'https://api.instagram.com/oauth/access_token';
-    protected $userDataUrl = 'https://api.instagram.com/v1/users/self/';
+    protected $userDataEndpoint = 'users/self/';
     protected $requiredParameters = ['client_id', 'redirect_uri'];
     protected $accessTokenData;
 
@@ -63,6 +64,16 @@ class InstProvider implements ProviderInterface
         return $this->accessTokenData['access_token'];
     }
 
+
+    /**
+     * @param array $options
+     * @return string
+     */
+    public function buildQuery(array $options)
+    {
+        return '?' . http_build_query($options);
+    }
+
     /**
      * @param array $fields
      * @return array|mixed
@@ -74,10 +85,10 @@ class InstProvider implements ProviderInterface
         $requestParameters = array_merge([
             'access_token' => $accessToken,
         ], $fields);
-        $response = file_get_contents($this->userDataUrl . '?' . http_build_query($requestParameters));
-        $data = json_decode($response, true);
+        $result = file_get_contents($this->apiUrl . $this->userDataEndpoint . $this->buildQuery($requestParameters));
+        $data = json_decode($result, true);
         if(!is_array($data)) {
-            throw new \Exception('Oops.. Response is wrong: ' . print_r($response, true));
+            throw new \Exception('Oops.. Response is wrong: (Response: ' . $result . ')');
         }
         return $data['data'];
     }
@@ -89,16 +100,6 @@ class InstProvider implements ProviderInterface
     public function setAuthorizeUrl($authorizeUrl)
     {
         $this->authorizeUrl = $authorizeUrl;
-        return $this;
-    }
-
-    /**
-     * @param string $userDataUrl
-     * @return InstProvider
-     */
-    public function setUserDataUrl($userDataUrl)
-    {
-        $this->userDataUrl = $userDataUrl;
         return $this;
     }
 
@@ -115,5 +116,25 @@ class InstProvider implements ProviderInterface
     public function get($endpoint, $options, $useAccessToken = false)
     {
         // todo implement this
+    }
+
+    /**
+     * @param string $apiUrl
+     * @return InstProvider
+     */
+    public function setApiUrl($apiUrl)
+    {
+        $this->apiUrl = $apiUrl;
+        return $this;
+    }
+
+    /**
+     * @param string $userDataEndpoint
+     * @return InstProvider
+     */
+    public function setUserDataEndpoint($userDataEndpoint)
+    {
+        $this->userDataEndpoint = $userDataEndpoint;
+        return $this;
     }
 }
