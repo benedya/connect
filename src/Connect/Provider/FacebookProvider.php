@@ -2,7 +2,7 @@
 
 namespace Benedya\Connect\Provider;
 
-class FbProvider implements ProviderInterface
+class FacebookProvider implements ProviderInterface
 {
     protected $clientSecret;
     protected $requestParameters;
@@ -103,7 +103,7 @@ class FbProvider implements ProviderInterface
 
     /**
      * @param string $authorizeUrl
-     * @return FbProvider
+     * @return $this
      */
     public function setAuthorizeUrl($authorizeUrl)
     {
@@ -113,7 +113,7 @@ class FbProvider implements ProviderInterface
 
     /**
      * @param string $accessTokenUrl
-     * @return FbProvider
+     * @return $this
      */
     public function setAccessTokenUrl($accessTokenUrl)
     {
@@ -123,7 +123,7 @@ class FbProvider implements ProviderInterface
 
     /**
      * @param string $apiUrl
-     * @return FbProvider
+     * @return $this
      */
     public function setApiUrl($apiUrl)
     {
@@ -133,7 +133,7 @@ class FbProvider implements ProviderInterface
 
     /**
      * @param string $userDataEndpoint
-     * @return FbProvider
+     * @return $this
      */
     public function setUserDataEndpoint($userDataEndpoint)
     {

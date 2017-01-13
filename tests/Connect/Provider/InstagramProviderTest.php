@@ -2,17 +2,17 @@
 
 namespace Benedya\Connect\Tests\Provider;
 
-use Benedya\Connect\Provider\InstProvider;
+use Benedya\Connect\Provider\InstagramProvider;
 
-class InstProviderTest extends \PHPUnit_Framework_TestCase
+class InstagramProviderTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var InstProvider*/
+    /** @var InstagramProvider*/
     static $provider;
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testGetAccessToken(InstProvider $provider)
+    public function testGetAccessToken(InstagramProvider $provider)
     {
         $provider
             ->method('post')
@@ -25,7 +25,7 @@ class InstProviderTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedProvider
      */
-    public function testGetUrl(InstProvider $provider)
+    public function testGetUrl(InstagramProvider $provider)
     {
         $this->assertEquals(
             'https://api.instagram.com/oauth/authorize/?client_id=client_id&redirect_uri=redirect_uri&response_type=code',
@@ -36,11 +36,11 @@ class InstProviderTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedProvider
      */
-    public function testBuildQuery(InstProvider $provider)
+    public function testBuildQuery(InstagramProvider $provider)
     {
         $this->assertEquals(
             '?q=test',
-            (new InstProvider(
+            (new InstagramProvider(
                 'secret',
                 [
                     'client_id' => 'client_id',
@@ -63,38 +63,38 @@ class InstProviderTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetAuthorizeUrl(InstProvider $provider)
+    public function testSetAuthorizeUrl(InstagramProvider $provider)
     {
-        $this->assertInstanceOf(InstProvider::class, $provider->setAuthorizeUrl(''));
+        $this->assertInstanceOf(InstagramProvider::class, $provider->setAuthorizeUrl(''));
     }
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetAccessTokenUrl(InstProvider $provider)
+    public function testSetAccessTokenUrl(InstagramProvider $provider)
     {
-        $this->assertInstanceOf(InstProvider::class, $provider->setAccessTokenUrl(''));
+        $this->assertInstanceOf(InstagramProvider::class, $provider->setAccessTokenUrl(''));
     }
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetApiUrl(InstProvider $provider)
+    public function testSetApiUrl(InstagramProvider $provider)
     {
-        $this->assertInstanceOf(InstProvider::class, $provider->setApiUrl(''));
+        $this->assertInstanceOf(InstagramProvider::class, $provider->setApiUrl(''));
     }
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetUserDataEndpoint(InstProvider $provider)
+    public function testSetUserDataEndpoint(InstagramProvider $provider)
     {
-        $this->assertInstanceOf(InstProvider::class, $provider->setUserDataEndpoint(''));
+        $this->assertInstanceOf(InstagramProvider::class, $provider->setUserDataEndpoint(''));
     }
 
     public function mockedProvider()
     {
-        $provider = $this->getMockBuilder(InstProvider::class)
+        $provider = $this->getMockBuilder(InstagramProvider::class)
             ->enableOriginalConstructor()
             ->setConstructorArgs([
                 'secret',

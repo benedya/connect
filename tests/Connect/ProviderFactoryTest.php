@@ -21,6 +21,6 @@ class ProviderFactory extends \PHPUnit_Framework_TestCase
 
     public function getProviders()
     {
-        return [['vk'], ['fb'], ['inst']];
+        return [['vk'], ['facebook'], ['instagram']];
     }
 }

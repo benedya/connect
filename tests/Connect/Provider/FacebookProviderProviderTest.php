@@ -2,17 +2,17 @@
 
 namespace Benedya\Connect\Tests\Provider;
 
-use Benedya\Connect\Provider\FbProvider;
+use Benedya\Connect\Provider\FacebookProvider;
 
-class FbProviderTest extends \PHPUnit_Framework_TestCase
+class FacebookProviderTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var FbProvider  */
+    /** @var FacebookProvider */
     static $provider;
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testGetAccessTokenSuccess(FbProvider $provider)
+    public function testGetAccessTokenSuccess(FacebookProvider $provider)
     {
         $provider->setAccessTokenUrl(__DIR__ . '/../../data/facebook/access_token.json');
         $this->assertEquals('access_token', $provider->getAccessToken('code'));
@@ -40,7 +40,7 @@ class FbProviderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             'https://www.facebook.com/v2.8/dialog/oauth?client_id=client_id&redirect_uri=redirect_uri',
-            (new FbProvider('secret', [
+            (new FacebookProvider('secret', [
                 'client_id' => 'client_id',
                 'redirect_uri' => 'redirect_uri',
             ]))->getUrl()
@@ -51,7 +51,7 @@ class FbProviderTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             '?q=test',
-            (new FbProvider('secret', [
+            (new FacebookProvider('secret', [
                 'client_id' => 'client_id',
                 'redirect_uri' => 'redirect_uri',
             ]))
@@ -62,38 +62,38 @@ class FbProviderTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetAccessTokenUrl(FbProvider $provider)
+    public function testSetAccessTokenUrl(FacebookProvider $provider)
     {
-        $this->assertInstanceOf(FbProvider::class, $provider->setAccessTokenUrl(''));
+        $this->assertInstanceOf(FacebookProvider::class, $provider->setAccessTokenUrl(''));
     }
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetAuthorizeUrl(FbProvider $provider)
+    public function testSetAuthorizeUrl(FacebookProvider $provider)
     {
-        $this->assertInstanceOf(FbProvider::class, $provider->setAuthorizeUrl(''));
+        $this->assertInstanceOf(FacebookProvider::class, $provider->setAuthorizeUrl(''));
     }
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetApiUrl(FbProvider $provider)
+    public function testSetApiUrl(FacebookProvider $provider)
     {
-        $this->assertInstanceOf(FbProvider::class, $provider->setApiUrl(''));
+        $this->assertInstanceOf(FacebookProvider::class, $provider->setApiUrl(''));
     }
 
     /**
      * @dataProvider mockedProvider
      */
-    public function testSetUserDataEndpoint(FbProvider $provider)
+    public function testSetUserDataEndpoint(FacebookProvider $provider)
     {
-        $this->assertInstanceOf(FbProvider::class, $provider->setUserDataEndpoint(''));
+        $this->assertInstanceOf(FacebookProvider::class, $provider->setUserDataEndpoint(''));
     }
 
     public function mockedProvider()
     {
-        $provider = $this->getMockBuilder(FbProvider::class)
+        $provider = $this->getMockBuilder(FacebookProvider::class)
             ->enableOriginalConstructor()
             ->setConstructorArgs([
                 'secret',

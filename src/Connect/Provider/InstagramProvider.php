@@ -4,7 +4,7 @@ namespace Benedya\Connect\Provider;
 
 use Benedya\Connect\Traits\CurlToolsTrait;
 
-class InstProvider implements ProviderInterface
+class InstagramProvider implements ProviderInterface
 {
     use CurlToolsTrait;
 
@@ -95,7 +95,7 @@ class InstProvider implements ProviderInterface
 
     /**
      * @param string $authorizeUrl
-     * @return InstProvider
+     * @return $this
      */
     public function setAuthorizeUrl($authorizeUrl)
     {
@@ -105,7 +105,7 @@ class InstProvider implements ProviderInterface
 
     /**
      * @param string $accessTokenUrl
-     * @return InstProvider
+     * @return $this
      */
     public function setAccessTokenUrl($accessTokenUrl)
     {
@@ -120,7 +120,7 @@ class InstProvider implements ProviderInterface
 
     /**
      * @param string $apiUrl
-     * @return InstProvider
+     * @return $this
      */
     public function setApiUrl($apiUrl)
     {
@@ -130,7 +130,7 @@ class InstProvider implements ProviderInterface
 
     /**
      * @param string $userDataEndpoint
-     * @return InstProvider
+     * @return $this
      */
     public function setUserDataEndpoint($userDataEndpoint)
     {
