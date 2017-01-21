@@ -45,7 +45,8 @@ class VkProviderTest extends \PHPUnit_Framework_TestCase
             ->setApiUrl(__DIR__ . '/../../data/vkontakte/')
             ->setUserDataEndpoint('user_data.endpoint.json');
         ;
-        $this->assertArrayHasKey('id', array_pop(self::$provider->get('user_data.endpoint.json', [])));
+        $res = self::$provider->get('user_data.endpoint.json', []);
+        $this->assertArrayHasKey('id', array_pop($res));
     }
 
     public function testGetUrl()
