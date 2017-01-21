@@ -7,7 +7,7 @@
 $clientSecret = 'client_secreat';
 $clientId = 'client_id';
 $redirectUri = 'http://example.com';
-$provider = 'fb'; // fb, vk, inst
+$provider = 'facebook'; // facebook, instagram, vk
 $provider = \Benedya\Connect\ProviderFactory::create($provider, $clientSecret, [
     'client_id' => $clientId,
     'redirect_uri' => $redirectUri
