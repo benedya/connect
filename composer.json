@@ -8,6 +8,7 @@
       "email": "benedya@gmail.com"
     }
   ],
+  "license": "MIT",
   "minimum-stability": "dev",
   "require": {
     "php": ">=5.6.0"
